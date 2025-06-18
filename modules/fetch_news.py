@@ -1,7 +1,9 @@
 import requests
 import os
+from dotenv import load_dotenv
 
-NEWS_API_KEY = "e5e5c198320547428dd0210a8cdbc881"
+load_dotenv()
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 def fetch_news_articles(user_prompt: str):
     url = f"https://newsapi.org/v2/everything?q={user_prompt}&pageSize=20&sortBy=publishedAt&language=en&apiKey={NEWS_API_KEY}"
