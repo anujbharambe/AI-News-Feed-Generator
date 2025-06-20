@@ -1,24 +1,31 @@
-import requests
-import os
-from dotenv import load_dotenv
+# modules/scrape_news.py
+from newspaper import Article
+import feedparser
+import datetime
 
-load_dotenv()
-NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+def scrape_google_news_articles(user_prompt):
+    rss_url = f"https://news.google.com/rss/search?q={user_prompt.replace(' ', '+')}&hl=en-IN&gl=IN&ceid=IN:en"
+    feed = feedparser.parse(rss_url)
 
-def fetch_news_articles(user_prompt: str):
-    url = f"https://newsapi.org/v2/everything?q={user_prompt}&pageSize=20&sortBy=publishedAt&language=en&apiKey={NEWS_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-    if not data.get("articles"):
-        print("API response:", data)
-    articles = [
-        {
-            "title": article["title"],
-            "description": article["description"],
-            "url": article["url"],
-            "publishedAt": article["publishedAt"],
-            "content": article.get("content", "")
-        }
-        for article in data.get("articles", [])
-    ]
+    articles = []
+    for entry in feed.entries[:20]:
+        try:
+            a = Article(entry.link)
+            a.download()
+            a.parse()
+            top_image = a.top_image
+            if not top_image:
+                top_image = "https://via.placeholder.com/150"  # Fallback image
+            articles.append({
+                "title": a.title,
+                "description": entry.get("summary", ""),
+                "url": entry.link,
+                "publishedAt": entry.get("published", datetime.datetime.now().isoformat()),
+                "content": a.text,
+                "source": "GoogleNewsRSS",
+                "image": top_image, 
+            })
+        except Exception as e:
+            print(f"Failed to parse article: {entry.link}", e)
+
     return articles
