@@ -7,8 +7,10 @@ def time_ago(published_at):
     if minutes < 60:
         return f"{int(minutes)} minutes ago"
     hours = minutes // 60
-    return f"{int(hours)} hours ago"
-
+    if hours < 24:
+        return f"{int(hours)} hours ago"
+    days = hours // 24
+    return f"{int(days)} days ago"
 
 def display_feed(articles):
     print("\nTop Trending News Articles:\n")
@@ -17,6 +19,7 @@ def display_feed(articles):
         return
     for idx, article in enumerate(articles):
         print(f"{idx+1}. {article['title']}")
+        print(f"   📰 {article['image']}")
         print(f"   📝 {article['summary']}")
         print(f"   🔗 {article['url']}")
         print(f"   🕒 {time_ago(article['publishedAt'])}\n")
