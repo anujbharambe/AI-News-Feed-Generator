@@ -1,2 +1,7 @@
 google.generativeai
 python-dateutil
+python-dotenv
+sentence_transformers
+newspaper3k
+transformers
+dotenv
